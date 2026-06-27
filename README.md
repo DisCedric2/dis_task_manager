@@ -1,39 +1,81 @@
 # Django Task Manager API
 
-A RESTful Task Management API built using Django REST Framework with JWT Authentication and Role-Based Access Control (RBAC).
+A RESTful Task Management API built using Django REST Framework featuring JWT Authentication, Role-Based Access Control (RBAC), Docker support, filtering, pagination, search, ordering, and unit tests.
 
-## Features
+---
+
+# Features
+
+### Authentication
 
 * User Registration
 * JWT Authentication
 * Refresh Token Support
-* Role-Based Access Control (Admin/User)
-* CRUD Operations for Tasks
+
+### Task Management
+
+* Create Task
+* Read Task
+* Update Task
+* Delete Task
+
+### Role-Based Access Control
+
+* Admin Role
+* User Role
+
+### Bonus Features
+
 * Pagination
 * Filtering
-* Search Functionality
+* Search
+* Ordering
+* Due Date Support
+
+### Additional Features
+
+* Docker Support
+* Unit Tests
 * SQLite Database
 
 ---
 
-## Technology Stack
+# Technology Stack
 
 * Python 3.9+
-* Django 5+
+* Django 6
 * Django REST Framework
 * SimpleJWT
-* SQLite
 * Django Filter
+* SQLite
+* Docker
 
 ---
 
-## Installation
+# Project Structure
+
+```text
+dis_task_manager/
+│
+├── accounts/
+├── dis_task/
+├── task_manager/
+├── Dockerfile
+├── docker-compose.yml
+├── requirements.txt
+├── manage.py
+└── README.md
+```
+
+---
+
+# Installation (Traditional Method)
 
 Clone the repository:
 
 ```bash
-git clone <repository_url>
-cd dis-task-manager-api
+git clone https://github.com/DisCedric2/dis_task_manager.git
+cd dis_task_manager
 ```
 
 Create virtual environment:
@@ -44,7 +86,7 @@ python -m venv venv
 
 Activate environment:
 
-Windows:
+### Windows
 
 ```bash
 venv\Scripts\activate
@@ -68,43 +110,95 @@ Create superuser:
 python manage.py createsuperuser
 ```
 
-Start server:
+Run development server:
 
 ```bash
 python manage.py runserver
 ```
 
+Application runs at:
+
+```text
+http://127.0.0.1:8000/
+```
+
 ---
 
-## Role Assignment
+# Installation (Docker Method)
 
-The project uses Django's built-in Groups for Role-Based Access Control.
+Build Docker image:
 
-Available Roles:
+```bash
+docker compose build
+```
 
-- Admin
-- User
+Run containers:
 
-To assign a role:
+```bash
+docker compose up
+```
 
-1. Login to Django Admin:
-   http://127.0.0.1:8000/admin/
+Or run in detached mode:
 
-2. Navigate to:
-   Authentication and Authorization → Groups
+```bash
+docker compose up -d
+```
 
-3. Create groups:
-   - Admin
-   - User
+The application will be available at:
 
-4. Navigate to:
-   Authentication and Authorization → Users
+```text
+http://localhost:8000/
+```
 
-5. Open a user and assign the desired group.
+To stop containers:
 
-## Authentication Endpoints
+```bash
+docker compose down
+```
 
-### Register
+---
+
+# Role Assignment
+
+The project uses Django Groups for Role-Based Access Control.
+
+Available roles:
+
+* Admin
+* User
+
+## Steps
+
+Open Django Admin:
+
+```text
+http://127.0.0.1:8000/admin/
+```
+
+Navigate to:
+
+```text
+Authentication and Authorization → Groups
+```
+
+Create groups:
+
+* Admin
+* User
+
+Then navigate to:
+
+```text
+Authentication and Authorization → Users
+```
+
+Assign the required role to a user.
+
+---
+
+# Authentication Endpoints
+
+## Register User
 
 ```http
 POST /api/auth/register/
@@ -114,15 +208,15 @@ Example:
 
 ```json
 {
-    "username":"user1",
-    "email":"user1@gmail.com",
-    "password":"password123"
+    "username": "discedric",
+    "email": "",
+    "password": "123456"
 }
 ```
 
 ---
 
-### Login
+## Login
 
 ```http
 POST /api/auth/login/
@@ -132,23 +226,23 @@ Example:
 
 ```json
 {
-    "username":"user1",
-    "password":"password123"
+    "username": "cedric",
+    "password": "cedric"
 }
 ```
 
-Returns:
+Response:
 
 ```json
 {
-    "refresh":"...",
-    "access":"..."
+    "refresh": "...",
+    "access": "..."
 }
 ```
 
 ---
 
-### Refresh Token
+## Refresh Token
 
 ```http
 POST /api/auth/refresh/
@@ -156,7 +250,23 @@ POST /api/auth/refresh/
 
 ---
 
-## Task Endpoints
+# Authorization Header
+
+Include JWT token in all authenticated requests:
+
+```http
+Authorization: Bearer <access_token>
+```
+
+Example:
+
+```http
+Authorization: Bearer eyJhbGc...
+```
+
+---
+
+# Task Endpoints
 
 | Method | Endpoint         |
 | ------ | ---------------- |
@@ -168,36 +278,127 @@ POST /api/auth/refresh/
 
 ---
 
-## Role Based Access
+# Role Permissions
 
-### Admin
+## Admin
 
 * View all tasks
 * Create tasks
 * Update any task
 * Delete any task
 
-### User
+## User
 
-* View only own tasks
-* Create own tasks
-* Update own tasks
-* Delete own tasks
-
----
-
-## Bonus Features
-
-* Pagination
-* Search
-* Filter by status
-* Due date support
-* Ordering support
+* View only their own tasks
+* Create their own tasks
+* Update their own tasks
+* Delete their own tasks
 
 ---
 
-## Authorization Header
+# Pagination
+
+Default page size:
+
+```text
+5 records per page
+```
+
+Example:
 
 ```http
-Authorization: Bearer <access_token>
+GET /api/tasks/?page=2
 ```
+
+---
+
+# Filtering
+
+Filter by task status:
+
+```http
+GET /api/tasks/?status=true
+```
+
+or
+
+```http
+GET /api/tasks/?status=false
+```
+
+---
+
+# Search
+
+Search by title or description:
+
+```http
+GET /api/tasks/?search=meeting
+```
+
+---
+
+# Ordering
+
+Order tasks by:
+
+* due_date
+* created_at
+
+Examples:
+
+```http
+GET /api/tasks/?ordering=due_date
+```
+
+```http
+GET /api/tasks/?ordering=-created_at (descending)
+```
+
+---
+
+# Due Date Support
+
+Example task creation:
+
+```json
+{
+    "title": "Submit Assessment",
+    "description": "Complete Django assessment",
+    "status": false,
+    "due_date": "2026-06-30T18:00:00Z"
+}
+```
+
+---
+
+# Unit Tests
+
+Run tests using:
+
+```bash
+python manage.py test
+```
+
+The project includes unit tests covering:
+
+* User Registration
+* JWT Authentication
+* Task CRUD Operations
+* Role-Based Access Control
+
+---
+
+# API Testing
+
+The APIs were tested using:
+
+* Postman
+* Django Admin
+
+---
+
+# Author
+
+**Dishant Bansod**
+Backend Developer Assessment Submission
